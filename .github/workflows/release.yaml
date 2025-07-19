@@ -1,0 +1,37 @@
+name: "build and push release"
+on:
+  push:
+    branches: [main]
+jobs:
+  build-push:
+    name: "build and push"
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+      - name: "get aws creds"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-west-2
+
+      - name: "login to ecr"
+        id: login-ecr 
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: "build and push"
+        env: 
+          ECR_REPO: '040089515335.dkr.ecr.us-west-2.amazonaws.com'
+          IMAGE_NAME: 'jellymoose'
+        run: |
+          docker build -t 040089515335.dkr.ecr.us-west-2.amazonaws.com/jellymoose:latest .
+          docker push 040089515335.dkr.ecr.us-west-2.amazonaws.com/jellymoose:latest
+          # tags: user/app:latest
