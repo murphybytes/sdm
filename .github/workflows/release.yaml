@@ -24,6 +24,7 @@ jobs:
           aws-region: us-west-2
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
       - name: "setup buildx"
         uses: docker/setup-buildx-action@v3
 
@@ -37,5 +38,5 @@ jobs:
           ECR_REPOSITORY: jellymoose
           ECR_TAG: latest
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$ECR_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$ECR_TAG
+          docker buildx build --platform linux/amd64,linux/arm64 -t "${ECR_REGISTRY}/${ECR_REPOSITORY}:${ECR_TAG}" .
+          docker push "${ECR_REGISTRY}/${ECR_REPOSITORY}:${ECR_TAG}"
