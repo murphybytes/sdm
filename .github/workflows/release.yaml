@@ -12,25 +12,30 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4
+
       - name: setup go
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
+
       - name: "get aws creds"
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-west-2
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: "setup buildx"
+        uses: docker/setup-buildx-action@v3
 
       - name: "login to ecr"
         id: login-ecr 
         uses: aws-actions/amazon-ecr-login@v2
+
       - name: "build and push"
         env: 
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: jellymoose
           ECR_TAG: latest
         run: |
-          docker build --platform linux/amd64,linux/arm64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$ECR_TAG .
+          docker buildx --platform linux/amd64,linux/arm64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$ECR_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$ECR_TAG
