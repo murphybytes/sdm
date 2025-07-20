@@ -31,3 +31,4 @@ jobs:
           docker build -t 040089515335.dkr.ecr.us-west-2.amazonaws.com/jellymoose:latest .
           aws ecr get-login-password | docker login -u AWS --password-stdin 040089515335.dkr.ecr.us-west-2.amazonaws.com
           docker push 040089515335.dkr.ecr.us-west-2.amazonaws.com/jellymoose:latest
+          # tags: user/app:latest
