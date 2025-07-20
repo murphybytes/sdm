@@ -23,7 +23,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-west-2
-          role-to-assume: "arn:aws:iam::040089515335:user/jellymoose"
+
       - name: "login to ecr"
         id: login-ecr 
         uses: aws-actions/amazon-ecr-login@v2
