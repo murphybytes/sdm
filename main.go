@@ -26,6 +26,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -79,14 +80,19 @@ const (
 // Counter implements a leaky bucket algorithm to limit total calls per minute
 // (CPM).
 type Counter struct {
+	sync.Mutex
 	// buckets is the current state of the rate limit buckets.
 	buckets map[string]Bucket
+	Now     func() time.Time
 }
 
 // NewCounter creates a new rate limiting counter.
 func NewCounter() *Counter {
 	return &Counter{
 		buckets: map[string]Bucket{},
+		Now: func() time.Time {
+			return time.Now()
+		},
 	}
 }
 
@@ -95,15 +101,18 @@ func NewCounter() *Counter {
 // state, and true/false to indicate whether the value was successfully added to
 // the bucket. If the limit is zero, it always returns success.
 func (p *Counter) Add(key string, limitPerWindow int64, add int64) Info {
+	p.Lock()
+	defer p.Unlock()
 	if limitPerWindow == 0 {
 		return Info{
-			Bucket:  key,
-			ResetAt: time.Now(),
+			Bucket: key,
+			//ResetAt: time.Now(),
+			ResetAt: p.Now(),
 			Allowed: true,
 		}
 	}
 
-	now := time.Now()
+	now := p.Now()
 
 	existingBucket := p.buckets[key]
 
