@@ -1,6 +1,6 @@
 name: "build and push release"
 on:
-  merge:
+  push:
     branches: [main]
 jobs:
   build-push:
